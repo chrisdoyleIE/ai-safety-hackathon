@@ -14,7 +14,7 @@ from langfuse import get_client
 
 langfuse = get_client()
 
-st.set_page_config(page_title="Langfuse Test Chat", page_icon="💬")
+st.set_page_config(page_title="SafeChat AI - Enterprise Monitor", page_icon="🏢")
 
 cot_monitor = CotMonitor()
 hallucination_monitor = HallucinationMonitor()
@@ -118,15 +118,11 @@ async def call_gpt_with_monitoring(messages: list[str]) -> str:
             span.update(
                 input=messages[-1]["content"],
                 output=output,
-            )
-
-            span.update(
-                input=messages[-1]["content"],
-                output=output,
                 metadata={
                     "cot": cot,
                     "cot_monitor_quotes": cot_score.quotes,
                     "cot_monitor_reason": cot_score.reasoning,
+                    "semantic_entropy": hallucination_result.semantic_entropy
                 },
             )
 
@@ -134,8 +130,8 @@ async def call_gpt_with_monitoring(messages: list[str]) -> str:
 
 
 def main():
-    st.title("💬 Langfuse Test Chat")
-    st.caption("A minimal ChatGPT wrapper with Langfuse instrumentation")
+    st.title("SafeChat AI Monitor")
+    st.caption("Enterprise-grade AI assistant with real-time safety analysis and trace observability")
 
     # Initialize chat history
     if "messages" not in st.session_state:

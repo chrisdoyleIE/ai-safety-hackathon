@@ -399,16 +399,3 @@ class HallucinationMonitor:
             likely_confabulation=result.likely_confabulation,
             num_clusters=result.num_clusters
         )
-    
-    def monitor_response_sync(self, prompt: str, response: str) -> HallucinationMonitorResponse:
-        """
-        Synchronous wrapper for monitor_response.
-        
-        Args:
-            prompt: The original input prompt
-            response: The model's response to analyze
-            
-        Returns:
-            HallucinationMonitorResponse with confabulation likelihood and details
-        """
-        return asyncio.run(self.monitor_response(prompt, response))
