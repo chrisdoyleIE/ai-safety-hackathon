@@ -1,11 +1,12 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from anthropic import Anthropic
+from anthropic import AsyncAnthropic
 from cot_monitor.monitor import CotMonitor
 from hallucination_monitor.monitor import HallucinationMonitor
+import asyncio
 
-client = Anthropic()
+client = AsyncAnthropic()
 
 load_dotenv()
 
@@ -24,10 +25,10 @@ with open(os.path.join(cwd, "cot_monitor/prompts/side_goal.txt"), "r") as f:
     side_goal = f.read()
 
 
-def call_gpt_with_monitoring(messages):
+async def call_gpt_with_monitoring(messages):
     """Call OpenAI ChatGPT API with Langfuse instrumentation."""
     with langfuse.start_as_current_span(name="chat_msg") as span:
-        response = client.messages.create(
+        response = await client.messages.create(
             model="claude-sonnet-4-20250514",
             system=side_goal,
             max_tokens=10000,
@@ -38,14 +39,12 @@ def call_gpt_with_monitoring(messages):
         output = response.content[1].text
         cot = response.content[0].thinking
 
-        print(cot)
-
-        action_score = cot_monitor.monitor_action(messages[-1]["content"], output)
-        cot_score = cot_monitor.monitor_cot(messages[-1]["content"], cot, output)
-        hybrid_score = cot_monitor.monitor_hybrid(action_score.score, cot_score.score)
+        action_score = await cot_monitor.monitor_action(messages[-1]["content"], output)
+        cot_score = await cot_monitor.monitor_cot(messages[-1]["content"], cot, output)
+        hybrid_score = await cot_monitor.monitor_hybrid(action_score.score, cot_score.score)
         
         # Get hallucination monitoring score
-        hallucination_result = hallucination_monitor.monitor_response_sync(messages[-1]["content"], output)
+        hallucination_result = await hallucination_monitor.monitor_response(messages[-1]["content"], output)
 
         with langfuse.start_as_current_span(name="monitoring") as span:
             # Score the current span with CoT monitoring
@@ -135,7 +134,7 @@ def main():
             with st.spinner("Thinking..."):
                 try:
                     # Call ChatGPT with Langfuse instrumentation
-                    response = call_gpt_with_monitoring(st.session_state.messages)
+                    response = asyncio.run(call_gpt_with_monitoring(st.session_state.messages))
                     st.markdown(response)
 
                     # Add assistant response to chat history
