@@ -21,15 +21,15 @@ class CotMonitor:
     def __init__(self):
         """Set the model, client, and prompts."""
         self.model = "gpt-4o-mini"
-        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.client = openai.AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         with open(os.path.join(cwd, "prompts/action_monitor.txt"), "r") as f:
             self.action_monitor_prompt = f.read()
         with open(os.path.join(cwd, "prompts/cot_monitor.txt"), "r") as f:
             self.cot_monitor_prompt = f.read()
 
-    def monitor_action(self, input: str, action: str) -> CoTMonitorResponse:
+    async def monitor_action(self, input: str, action: str) -> CoTMonitorResponse:
         """Monitor only the model outputs."""
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {
@@ -44,9 +44,9 @@ class CotMonitor:
         score = float(txt.split("<answer>")[1].split("</answer>")[0])
         return CoTMonitorResponse(score=score, reasoning=txt)
 
-    def monitor_cot(self, input: str, cot: str, action: str) -> CoTMonitorResponse:
+    async def monitor_cot(self, input: str, cot: str, action: str) -> CoTMonitorResponse:
         """Monitor the models chain-of-thought."""
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {
@@ -73,7 +73,7 @@ class CotMonitor:
             reason = txt
         return CoTMonitorResponse(score=score, reasoning=reason, quotes=quotes)
 
-    def monitor_hybrid(self, action_score: float, cot_score: float) -> float:
+    async def monitor_hybrid(self, action_score: float, cot_score: float) -> float:
         """Use the hybrid monitoring protocol from the paper."""
         w = 0.55
         return w * action_score + (1 - w) * cot_score

@@ -1,0 +1,14 @@
+Fetches the content of a webpage specified by its URL, parses it to find <script> tags, and attempts to evaluate any string within these tags as a Python dictionary.
+Note that: If an error occurs during the request or if no dictionaries are found/evaluable, an empty list is returned.
+
+The function should output with:
+list of dict: A list containing dictionaries that were successfully evaluated from string representations
+found within <script> tags on the webpage.You should write self-contained code starting with:
+
+
+```python
+import ast
+import requests
+from bs4 import BeautifulSoup
+def task_func(url):
+```
