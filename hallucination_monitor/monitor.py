@@ -394,7 +394,7 @@ class HallucinationMonitor:
         score = 1.0 if result.likely_confabulation else 0.0
         
         return HallucinationMonitorResponse(
-            score=score * 100,
+            score=score,
             semantic_entropy=result.semantic_entropy,
             likely_confabulation=result.likely_confabulation,
             num_clusters=result.num_clusters
