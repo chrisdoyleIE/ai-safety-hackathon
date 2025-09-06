@@ -93,6 +93,27 @@ async def call_gpt_with_monitoring(messages: list[str]) -> str:
             
             if is_bad_behaviour:
                 span.update_trace(tags=["Bad Behaviour"])
+                
+                # Try to get trace URL
+                try:
+                    trace_url = langfuse.get_trace_url()
+                    langfuse_link = f"[View details in Langfuse]({trace_url})"
+                except:
+                    langfuse_link = "View details in Langfuse at http://localhost:3000"
+                
+                # Determine which type of bad behavior and display warning
+                if hallucination_result.score > 0.5 and (cot_score.score > 0.8 or action_score.score > 0.8):
+                    # Both hallucination and pathological behavior
+                    warning_msg = f"🚨⚠️🚨 **CRITICAL WARNING:** This response shows multiple concerning behaviors!\n{langfuse_link}"
+                    st.error(warning_msg)
+                elif hallucination_result.score > 0.5:
+                    # Hallucination detected
+                    warning_msg = f"⚠️⚠️⚠️ **WARNING:** This response may contain hallucinations or inaccurate information!\n{langfuse_link}"
+                    st.warning(warning_msg)
+                else:
+                    # Pathological behavior detected (cot or action score high)
+                    warning_msg = f"🚨🚨🚨 **WARNING:** This response may contain pathological or harmful behavior!\n{langfuse_link}"
+                    st.error(warning_msg)
 
             span.update(
                 input=messages[-1]["content"],
