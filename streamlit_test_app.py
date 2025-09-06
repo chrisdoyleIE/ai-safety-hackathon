@@ -25,7 +25,7 @@ with open(os.path.join(cwd, "cot_monitor/prompts/side_goal.txt"), "r") as f:
     side_goal = f.read()
 
 
-async def call_gpt_with_monitoring(messages):
+async def call_gpt_with_monitoring(messages: list[str]) -> str:
     """Call OpenAI ChatGPT API with Langfuse instrumentation."""
     with langfuse.start_as_current_span(name="chat_msg") as span:
         response = await client.messages.create(
@@ -44,7 +44,7 @@ async def call_gpt_with_monitoring(messages):
             {"role": "assistant", "content": output}
         )
 
-        st.markdown(response)
+        st.markdown(output)
 
         action_score = await cot_monitor.monitor_action(messages[-1]["content"], output)
         cot_score = await cot_monitor.monitor_cot(messages[-1]["content"], cot, output)
