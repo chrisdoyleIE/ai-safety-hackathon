@@ -92,7 +92,8 @@ async def monitor(messages: list[dict[str, str]], output: str, cot: str):
 
             if cot_score.score > 0.5:
                 output = f"""
-                    __WARNING: The below code has been flagged by the monitor as suspicious. Please review the code carefully before use.__
+                    __WARNING: The below code has been flagged by the monitor as suspicious. Please review the code carefully before use.__\n\n
+
                     {output}
                 """
 
