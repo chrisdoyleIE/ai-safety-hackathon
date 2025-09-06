@@ -363,7 +363,7 @@ Does Text 1 semantically entail Text 2? That is, if Text 1 is true, must EVERYTH
 
 class HallucinationMonitorResponse(BaseModel):
     """Response object for hallucination monitoring"""
-    score: float = Field(ge=0.0, le=1.0, description="Confabulation likelihood score (0-1)")
+    score: float = Field(ge=0.0, le=100.0, description="Confabulation likelihood score (0-1)")
     semantic_entropy: float = Field(ge=0.0, description="Semantic entropy value")
     likely_confabulation: bool = Field(description="Whether this is likely a confabulation")
     num_clusters: int = Field(ge=0, description="Number of semantic clusters")
