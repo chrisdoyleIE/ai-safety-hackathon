@@ -92,7 +92,7 @@ async def call_gpt_with_monitoring(messages: list[str]) -> str:
             )
             
             if is_bad_behaviour:
-                span.tag("Bad Behaviour")
+                span.update_trace(tags=["Bad Behaviour"])
 
             span.update(
                 input=messages[-1]["content"],
