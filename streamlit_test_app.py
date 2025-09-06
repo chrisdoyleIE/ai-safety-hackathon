@@ -39,6 +39,13 @@ async def call_gpt_with_monitoring(messages):
         output = response.content[1].text
         cot = response.content[0].thinking
 
+        # Add assistant response to chat history
+        st.session_state.messages.append(
+            {"role": "assistant", "content": output}
+        )
+
+        st.markdown(response)
+
         action_score = await cot_monitor.monitor_action(messages[-1]["content"], output)
         cot_score = await cot_monitor.monitor_cot(messages[-1]["content"], cot, output)
         hybrid_score = await cot_monitor.monitor_hybrid(action_score.score, cot_score.score)
@@ -134,13 +141,7 @@ def main():
             with st.spinner("Thinking..."):
                 try:
                     # Call ChatGPT with Langfuse instrumentation
-                    response = asyncio.run(call_gpt_with_monitoring(st.session_state.messages))
-                    st.markdown(response)
-
-                    # Add assistant response to chat history
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": response}
-                    )
+                    asyncio.run(call_gpt_with_monitoring(st.session_state.messages))
 
                 except Exception as e:
                     error_msg = f"Error: {str(e)}"
